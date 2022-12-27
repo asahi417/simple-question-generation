@@ -36,8 +36,8 @@ PAIRS = list(zip(DATASET['sentence_answer'], DATASET['question']))
 PAIRS_TEST = list(zip(DATASET_TEST['sentence_answer'], DATASET_TEST['question']))
 random.shuffle(PAIRS_TEST)
 WORD_INDEXER = WordIndexer(list(chain(*PAIRS)) + list(chain(*PAIRS_TEST)))
-ENCODER = EncoderRNN(WORD_INDEXER.n_words, NUM_LAYERS, HIDDEN_SIZE).to(DEVICE)
-DECODER = AttnDecoderRNN(WORD_INDEXER.n_words, NUM_LAYERS, HIDDEN_SIZE, DROPOUT_P, MAX_LENGTH).to(DEVICE)
+ENCODER = EncoderRNN(WORD_INDEXER.n_words + 1, NUM_LAYERS, HIDDEN_SIZE).to(DEVICE)
+DECODER = AttnDecoderRNN(WORD_INDEXER.n_words + 1, NUM_LAYERS, HIDDEN_SIZE, DROPOUT_P, MAX_LENGTH).to(DEVICE)
 
 
 def get_prediction(sentence):
