@@ -4,7 +4,7 @@ import math
 import random
 import json
 from itertools import chain
-
+from tqdm import tqdm
 import torch
 import torch.nn as nn
 from torch import optim
@@ -75,7 +75,7 @@ def train_single_epoch(input_tensor, target_tensor, encoder_optimizer, decoder_o
     for ei in range(input_length):
         encoder_output, encoder_hidden = ENCODER(input_tensor[ei], encoder_hidden)
         encoder_outputs[ei] = encoder_output[0, 0]
-    decoder_input = torch.tensor([[WORD_INDEXER.sos]], device=DEVICE)
+    decoder_input = torch.tensor([[WORD_INDEXER.word2index[WORD_INDEXER.sos]]], device=DEVICE)
     decoder_hidden = encoder_hidden
     use_teacher_forcing = True if random.random() < TEACHER_FORCING_RATIO else False
     if use_teacher_forcing:
@@ -123,7 +123,7 @@ def train():
     decoder_optimizer = optim.SGD(DECODER.parameters(), lr=LEARNING_RATE)
     training_pairs = [pair_to_tensor(random.choice(PAIRS)) for _ in range(n_iters)]
 
-    for i in range(1, n_iters + 1):
+    for i in tqdm(list(range(1, n_iters + 1))):
         training_pair = training_pairs[i - 1]
         input_tensor = training_pair[0]
         target_tensor = training_pair[1]
