@@ -135,8 +135,6 @@ def train():
                 continue
             input_tensors.append(input_tensor)
             target_tensors.append(target_tensor)
-
-        input(len(input_tensors))
         loss = train_single_epoch(input_tensors, target_tensors, encoder_optimizer, decoder_optimizer)
         print_loss_total += loss
         if i % PRINT_EVERY == 0:
