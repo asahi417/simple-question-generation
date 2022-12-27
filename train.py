@@ -50,13 +50,12 @@ def get_prediction(sentence):
         for di in range(MAX_LENGTH):
             decoder_output, decoder_hidden, decoder_attention = DECODER(decoder_input, decoder_hidden, encoder_outputs)
             _, topi = decoder_output.data.topk(1)
-            if topi.item() == WORD_INDEXER.eos:
-                decoded_words.append(WORD_INDEXER.eos)
+            predicted_token = WORD_INDEXER.index2word[topi.item()]
+            decoded_words.append(WORD_INDEXER.eos)
+            if predicted_token == WORD_INDEXER.eos:
                 break
-            else:
-                decoded_words.append(WORD_INDEXER.index2word[topi.item()])
             decoder_input = topi.squeeze().detach()
-    return decoded_words
+    return ' '.join(decoded_words)
 
 
 def train_single_epoch(input_tensor, target_tensor, encoder_optimizer, decoder_optimizer):
@@ -89,7 +88,7 @@ def train_single_epoch(input_tensor, target_tensor, encoder_optimizer, decoder_o
             _, topi = decoder_output.topk(1)
             decoder_input = topi.squeeze().detach()  # detach from history as input
             loss += criterion(decoder_output, target_tensor[di])
-            if decoder_input.item() == WORD_INDEXER.eos:
+            if decoder_input.item() == WORD_INDEXER.word2index[WORD_INDEXER.eos]:
                 break
     loss.backward()
 
