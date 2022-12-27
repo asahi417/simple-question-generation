@@ -16,14 +16,15 @@ from model import EncoderRNN, AttnDecoderRNN, WordIndexer
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
 # Config
-N_ITERS = 50000
-GRADIENT_ACCUMULATION = 8
+N_ITERS = int(os.getenv('N_ITERS', 50000))
+GRADIENT_ACCUMULATION = int(os.getenv('GRADIENT_ACCUMULATION', 8))
+NUM_LAYERS = int(os.getenv("NUM_LAYERS", 8))
+HIDDEN_SIZE = int(os.getenv("HIDDEN_SIZE", 256))
+MIN_WORD_COUNT = int(os.getenv("MIN_WORD_COUNT", 0))
 TEACHER_FORCING_RATIO = 0.5
-LEARNING_RATE = 0.005
+LEARNING_RATE = 0.01
 PRINT_EVERY = 50
 MAX_LENGTH = 128
-NUM_LAYERS = 4
-HIDDEN_SIZE = 256
 DROPOUT_P = 0.1
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -35,7 +36,7 @@ DATASET_TEST = load_dataset("lmqg/qg_squad", split='test')
 PAIRS = list(zip(DATASET['sentence_answer'], DATASET['question']))
 PAIRS_TEST = list(zip(DATASET_TEST['sentence_answer'], DATASET_TEST['question']))
 random.shuffle(PAIRS_TEST)
-WORD_INDEXER = WordIndexer(list(chain(*PAIRS)) + list(chain(*PAIRS_TEST)))
+WORD_INDEXER = WordIndexer(list(chain(*PAIRS)) + list(chain(*PAIRS_TEST)), min_word_count=MIN_WORD_COUNT)
 ENCODER = EncoderRNN(WORD_INDEXER.n_words + 1, NUM_LAYERS, HIDDEN_SIZE).to(DEVICE)
 DECODER = AttnDecoderRNN(WORD_INDEXER.n_words + 1, NUM_LAYERS, HIDDEN_SIZE, DROPOUT_P, MAX_LENGTH).to(DEVICE)
 

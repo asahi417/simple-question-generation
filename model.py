@@ -9,7 +9,7 @@ import spacy
 
 class WordIndexer:
 
-    def __init__(self, sentences, min_word_count: int = 5, path: str = 'word_indexer.json'):
+    def __init__(self, sentences, min_word_count: int = 0, path: str = 'word_indexer.json'):
         self.eos = 'eos'
         self.unk = 'unk'
         self.sos = 'sos'
