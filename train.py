@@ -125,7 +125,7 @@ def train():
     for i in tqdm(list(range(1, N_ITERS + 1))):
         input_tensors = []
         target_tensors = []
-        while len(input_tensors) == GRADIENT_ACCUMULATION:
+        while len(input_tensors) < GRADIENT_ACCUMULATION:
             q, a = random.choice(PAIRS)
             input_tensor = WORD_INDEXER.sentence_to_tensor(q).to(DEVICE)
             target_tensor = WORD_INDEXER.sentence_to_tensor(a).to(DEVICE)
@@ -136,6 +136,7 @@ def train():
             input_tensors.append(input_tensor)
             target_tensors.append(target_tensor)
 
+        input(len(input_tensors))
         loss = train_single_epoch(input_tensors, target_tensors, encoder_optimizer, decoder_optimizer)
         print_loss_total += loss
         if i % PRINT_EVERY == 0:
