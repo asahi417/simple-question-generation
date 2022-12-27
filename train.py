@@ -24,13 +24,11 @@ DROPOUT_P = 0.1
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Data
+random.seed(0)
 DATASET = load_dataset("lmqg/qg_squad", split='train')
 DATASET_TEST = load_dataset("lmqg/qg_squad", split='test')
 PAIRS = list(zip(DATASET['sentence_answer'], DATASET['question']))
-PAIRS = [i for i in PAIRS if len(i[0].split(" ")) < MAX_LENGTH]
 PAIRS_TEST = list(zip(DATASET_TEST['sentence_answer'], DATASET_TEST['question']))
-PAIRS_TEST = [i for i in PAIRS_TEST if len(i[0].split(" ")) < MAX_LENGTH]
-random.seed(0)
 random.shuffle(PAIRS_TEST)
 WORD_INDEXER = WordIndexer(list(chain(*PAIRS)) + list(chain(*PAIRS_TEST)))
 ENCODER = EncoderRNN(WORD_INDEXER.n_words, NUM_LAYERS, HIDDEN_SIZE).to(DEVICE)
@@ -127,6 +125,11 @@ def train():
         training_pair = training_pairs[i - 1]
         input_tensor = training_pair[0]
         target_tensor = training_pair[1]
+        input_length = input_tensor.size(0)
+        target_length = target_tensor.size(0)
+        if input_length >= MAX_LENGTH or target_length >= MAX_LENGTH:
+            continue
+
         loss = train_single_epoch(input_tensor, target_tensor, encoder_optimizer, decoder_optimizer)
         print_loss_total += loss
 

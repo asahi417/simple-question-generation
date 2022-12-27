@@ -1,3 +1,5 @@
+import os
+import json
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
@@ -6,25 +8,31 @@ import spacy
 
 class WordIndexer:
 
-    def __init__(self, sentences, min_word_count: int = 5):
+    def __init__(self, sentences, min_word_count: int = 5, path: str = 'word_indexer.json'):
         self.eos = 'eos'
         self.unk = 'unk'
         self.sos = 'sos'
         self.nlp = spacy.load("en_core_web_sm")
-        self.word_freq = {}
-        # collection
-        for sentence in sentences:
-            for word in self.nlp.tokenizer(sentence):
-                word = str(word).lower()
-                if word in self.word_freq:
-                    self.word_freq[word] += 1
-                else:
-                    self.word_freq[word] = 1
-        # filter
-        self.vocab = sorted([k for k, v in self.word_freq.items() if v > min_word_count])
-        self.word2index = {self.sos: 0, self.eos: 1, self.unk: 2}
-        word2index = {w: n + len(self.word2index) for n, w in enumerate(self.vocab)}
-        self.word2index.update(word2index)
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                self.word2index = json.load(f)
+        else:
+            word_freq = {}
+            # collection
+            for sentence in sentences:
+                for word in self.nlp.tokenizer(sentence):
+                    word = str(word).lower()
+                    if word in word_freq:
+                        word_freq[word] += 1
+                    else:
+                        word_freq[word] = 1
+            # filter
+            vocab = sorted([k for k, v in word_freq.items() if v > min_word_count])
+            self.word2index = {self.sos: 0, self.eos: 1, self.unk: 2}
+            word2index = {w: n + len(self.word2index) for n, w in enumerate(vocab)}
+            self.word2index.update(word2index)
+            with open(path, 'w') as f:
+                json.dump(self.word2index, f)
         self.index2word = {v: k for k, v in self.word2index.items()}
         self.n_words = len(self.index2word)
 
