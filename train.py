@@ -54,8 +54,7 @@ def get_prediction(sentence):
             decoder_output, decoder_hidden, decoder_attention = DECODER(decoder_input, decoder_hidden, encoder_outputs)
             _, topi = decoder_output.data.topk(1)
             predicted_token = WORD_INDEXER.index2word[topi.item()]
-            decoded_words.append(WORD_INDEXER.eos)
-            print(predicted_token, WORD_INDEXER.eos)
+            decoded_words.append(predicted_token)
             if predicted_token == WORD_INDEXER.eos:
                 break
             decoder_input = topi.squeeze().detach()
