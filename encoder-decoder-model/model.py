@@ -32,8 +32,9 @@ class WordIndexer:
         tokens = [str(word).lower() for word in self.nlp.tokenizer(sentence)]
         return [self.word2index[t] if t in self.word2index else self.word2index[self.unk] for t in tokens]
 
-    def decode(self, id_list):
-        return ' '.join([self.index2word[i] for i in id_list])
+    def sentence_to_tensor(self, sentence):
+        ids = self.encode(sentence) + [self.word2index[self.eos]]
+        return torch.tensor(ids, dtype=torch.long).view(-1, 1)
 
 
 class EncoderRNN(nn.Module):
