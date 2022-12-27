@@ -3,6 +3,7 @@ import time
 import math
 import random
 import json
+import logging
 from itertools import chain
 from tqdm import tqdm
 import torch
@@ -12,6 +13,7 @@ from datasets import load_dataset
 
 from model import EncoderRNN, AttnDecoderRNN, WordIndexer
 
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 # Config
 EPOCH = 3
 TEACHER_FORCING_RATIO = 0.5
@@ -110,20 +112,16 @@ def train():
         s = time.time() - since
         return '%s (- %s)' % (as_min(s), as_min(s / percent - s))
 
-    def pair_to_tensor(pair):
-        return WORD_INDEXER.sentence_to_tensor(pair[0]).to(DEVICE), WORD_INDEXER.sentence_to_tensor(pair[1]).to(DEVICE)
-
     start = time.time()
     print_loss_total = 0  # Reset every print_every
     n_iters = len(PAIRS) * EPOCH
     encoder_optimizer = optim.SGD(ENCODER.parameters(), lr=LEARNING_RATE)
     decoder_optimizer = optim.SGD(DECODER.parameters(), lr=LEARNING_RATE)
-    training_pairs = [pair_to_tensor(random.choice(PAIRS)) for _ in range(n_iters)]
 
     for i in tqdm(list(range(1, n_iters + 1))):
-        training_pair = training_pairs[i - 1]
-        input_tensor = training_pair[0]
-        target_tensor = training_pair[1]
+        q, a = random.choice(PAIRS)
+        input_tensor = WORD_INDEXER.sentence_to_tensor(q).to(DEVICE)
+        target_tensor = WORD_INDEXER.sentence_to_tensor(a).to(DEVICE)
         input_length = input_tensor.size(0)
         target_length = target_tensor.size(0)
         if input_length >= MAX_LENGTH or target_length >= MAX_LENGTH:

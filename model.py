@@ -1,3 +1,4 @@
+import logging
 import os
 import json
 import torch
@@ -35,6 +36,7 @@ class WordIndexer:
                 json.dump(self.word2index, f)
         self.index2word = {v: k for k, v in self.word2index.items()}
         self.n_words = len(self.index2word)
+        logging.info(f'word indexer: {self.n_words} words')
 
     def encode(self, sentence):
         tokens = [str(word).lower() for word in self.nlp.tokenizer(sentence)]
