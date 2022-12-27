@@ -18,6 +18,11 @@ wget https://github.com/asahi417/lm-question-generation/releases/download/0.0.0/
 ***Step 2:*** Download the model checkpoint from [here](https://drive.google.com/file/d/16Gi1oZr3mEGMEUCsOQ3whFfDlv8IAyzG/view?usp=sharing), and 
 locate it under `model` directory.
 
+```shell
+wget https://github.com/asahi417/simple-question-generation/releases/download/init/model.t7
+mv model.t7 model/
+```
+
 ***Step 3:*** Overwrite config file `config-trans` as below to specify the file to generate prediction on. If you use GPUs, set
 `gpuid=1` instead.
 
