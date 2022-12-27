@@ -14,11 +14,12 @@ from datasets import load_dataset
 from model import EncoderRNN, AttnDecoderRNN, WordIndexer
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+
 # Config
 EPOCH = 3
 TEACHER_FORCING_RATIO = 0.5
 LEARNING_RATE = 0.01
-PRINT_EVERY = 50
+PRINT_EVERY = 100
 MAX_LENGTH = 128
 NUM_LAYERS = 4
 HIDDEN_SIZE = 256
@@ -90,6 +91,8 @@ def train_single_epoch(input_tensor, target_tensor, encoder_optimizer, decoder_o
             _, topi = decoder_output.topk(1)
             decoder_input = topi.squeeze().detach()  # detach from history as input
             loss += criterion(decoder_output, target_tensor[di])
+            print(decoder_input.item(), WORD_INDEXER.word2index[WORD_INDEXER.eos], decoder_input.item() == WORD_INDEXER.word2index[WORD_INDEXER.eos])
+            input()
             if decoder_input.item() == WORD_INDEXER.word2index[WORD_INDEXER.eos]:
                 break
     loss.backward()
@@ -131,10 +134,10 @@ def train():
         print_loss_total += loss
 
         if i % PRINT_EVERY == 0:
-            print('%s (%d %d%%) %.4f' % (time_since(start, i / n_iters), i, i / n_iters * 100, print_loss_total / PRINT_EVERY))
+            logging.info('%s (%d %d%%) %.4f' % (time_since(start, i / n_iters), i, i / n_iters * 100, print_loss_total / PRINT_EVERY))
             print_loss_total = 0
-            for test_pair in PAIRS_TEST[:10]:
-                print(f"PREDICTION: {test_pair[0]}\n\t*gene: {get_prediction(test_pair[0])}\n\t*gold: {test_pair[1]}\n")
+            for test_pair in PAIRS_TEST[:5]:
+                logging.info(f"PREDICTION: {test_pair[0]}\n\t*gene: {get_prediction(test_pair[0])}\n\t*gold: {test_pair[1]}\n")
 
     os.makedirs('model', exist_ok=True)
     torch.save(ENCODER.state_dict(), "model/encoder.pt")
