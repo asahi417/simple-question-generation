@@ -18,11 +18,11 @@ logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logg
 # Config
 N_ITERS = int(os.getenv('N_ITERS', 50000))
 GRADIENT_ACCUMULATION = int(os.getenv('GRADIENT_ACCUMULATION', 8))
-NUM_LAYERS = int(os.getenv("NUM_LAYERS", 8))
+NUM_LAYERS = int(os.getenv("NUM_LAYERS", 6))
 HIDDEN_SIZE = int(os.getenv("HIDDEN_SIZE", 256))
 MIN_WORD_COUNT = int(os.getenv("MIN_WORD_COUNT", 0))
-TEACHER_FORCING_RATIO = 0.5
-LEARNING_RATE = 0.01
+TEACHER_FORCING_RATIO = float(os.getenv("TEACHER_FORCING_RATIO", 0.9))
+LEARNING_RATE = float(os.getenv("LEARNING_RATE", 0.005))
 PRINT_EVERY = 50
 MAX_LENGTH = 128
 DROPOUT_P = 0.1
