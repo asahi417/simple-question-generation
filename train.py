@@ -24,7 +24,7 @@ MIN_WORD_COUNT = int(os.getenv("MIN_WORD_COUNT", 0))
 TEACHER_FORCING_RATIO = float(os.getenv("TEACHER_FORCING_RATIO", 0.9))
 LEARNING_RATE = float(os.getenv("LEARNING_RATE", 0.005))
 PRINT_EVERY = 50
-MAX_LENGTH = 128
+MAX_LENGTH = 256
 DROPOUT_P = 0.1
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -33,8 +33,10 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 random.seed(0)
 DATASET = load_dataset("lmqg/qg_squad", split='train')
 DATASET_TEST = load_dataset("lmqg/qg_squad", split='test')
-PAIRS = list(zip(DATASET['sentence_answer'], DATASET['question']))
-PAIRS_TEST = list(zip(DATASET_TEST['sentence_answer'], DATASET_TEST['question']))
+# PAIRS = list(zip(DATASET['sentence_answer'], DATASET['question']))
+# PAIRS_TEST = list(zip(DATASET_TEST['sentence_answer'], DATASET_TEST['question']))
+PAIRS = list(zip(DATASET['paragraph_answer'], DATASET['question']))
+PAIRS_TEST = list(zip(DATASET_TEST['paragraph_answer'], DATASET_TEST['question']))
 random.shuffle(PAIRS_TEST)
 WORD_INDEXER = WordIndexer(list(chain(*PAIRS)) + list(chain(*PAIRS_TEST)), min_word_count=MIN_WORD_COUNT)
 ENCODER = EncoderRNN(WORD_INDEXER.n_words + 1, NUM_LAYERS, HIDDEN_SIZE).to(DEVICE)
